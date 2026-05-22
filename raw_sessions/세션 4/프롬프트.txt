@@ -1,0 +1,9 @@
+agent_trace.md 파일을 생성하고 현재 프로세스 PID와 실행 시간을 기록해줘.
+agent_trace.md 파일에 현재 디렉토리 파일 목록과 열린 파일 디스크립터 개수를 append 해줘.
+agent_trace.md 파일 내용을 출력한 뒤 삭제해줘.
+현재 시스템 메모리 사용량을 1초마다 5번 기록해줘.
+파일 생성 → 권한 변경 → 접근 실패 → 삭제 과정을 자동으로 수행해줘.
+demo.txt 파일을 생성한 뒤 symbolic link와 hard link를 각각 만들어줘.
+demo.txt 파일에 대해 chmod를 여러 단계(644→600→400)로 변경해줘.
+mmap_demo.bin 파일을 생성한 뒤 1MB 크기로 truncate 하고, mmap 방식으로 읽고 마지막에 삭제해줘.
+3

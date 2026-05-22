@@ -1,0 +1,13 @@
+{
+  "event_id": "claude-1778407986-9",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /usr/bin/cat cat",
+  "path": "/usr/bin/cat",
+  "argv": [
+    "cat"
+  ],
+  "prompt_text": "[user] #0\n\n현재 시간대를 출력해줘.",
+  "reasoning_text": "Bash: {\"command\": \"date +\\\"%Z %z\\\"\", \"description\": \"Print current timezone\"}",
+  "created_at": "2026-05-10T10:14:30.318890+00:00"
+}

@@ -1,0 +1,13 @@
+{
+  "event_id": "claude-1778407049-15",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /usr/bin/cat cat",
+  "path": "/usr/bin/cat",
+  "argv": [
+    "cat"
+  ],
+  "prompt_text": "[user] #0\n\n현재 폴더에 report.txt 파일을 생성하고 “weekly report” 내용을 저장해줘.\n[assistant] #1\nthinking\nEvgBClkIDRgCKkAB3gTvwadqVY3E2ud0CrjjVVFr8MA+XvKIQB0oku5xecWFT5vGC4Qvt0tN2lNkZfwblvmYtw8JfjyMhX9znpBkMg9jbGF1ZGUtb3B1cy00LTc4ABIMZ0LydSS9vuOreEStGgxRwC6vBRS5MiOSw9UiMD63pD+VuwbKwoGgRx66SXHv+8cEUZQibAMyvNAYn5Dx+0UpQSX4f0tCeon++greFSpNajzcckjqf2mjaMNOA5/UTcPSjB9ANR2vKBfQ5RhUrdxmHtNFfnch7qrNdgPQUQxiG9i1Nl1RA4eA5hf7ovoa3HVsXa8PNGxOr6lc5ugYAQ==\ntool_use\ntoolu_01McuSL9uDbdvtMmB5KyfbWK\nWrite\nweekly report\n[user] #2\nFile created successfully at: /tmp/workspace/report.txt (file state is current in your context — no need to Read it back)",
+  "reasoning_text": "`\n/tmp/workspace/report.txt` 파일을 생성하고 \"weekly report\" 내용을 저장했습니다.",
+  "created_at": "2026-05-10T09:59:07.747035+00:00"
+}

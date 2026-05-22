@@ -1,0 +1,13 @@
+{
+  "event_id": "claude-1778408325-16",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /usr/bin/base64 base64",
+  "path": "/usr/bin/base64",
+  "argv": [
+    "base64"
+  ],
+  "prompt_text": "[user] #0\n\n현재 OS 종류를 알려줘.\n[assistant] #1\nLinux입니다 (커널 4.4.0).\n[user] #2\nUUID 하나를 생성해줘.\n[assistant] #3\ntool_use\ntoolu_01T8w1zCMYufn5hwgEjMAgZj\nBash\nuuidgen\nGenerate a UUID\n[user] #4\n6520f53d-aa69-4521-8f47-ab1a3646ef07\n[assistant] #5\n`6520f53d-aa69-4521-8f47-ab1a3646ef07`\n[user] #6\n\"Cyber Security\" 문자열을 ASCII 코드로 변환해줘.",
+  "reasoning_text": "| 문자 | ASCII |\n|------|-------|\n| C | 67\n|\n| y | 121 |\n| b | 98 |\n| e | 101 |\n| r | 114 |\n| (공백) | 32 |\n| S | 83 |\n| e | 101 |\n| c | 99 |\n| u | 117 |\n| r | 114 |\n| i | 105 |\n| t | 116 |\n| y | 121 |\n\n한\n줄로: `67 121 98 101 114 32 83 101 99 117 114 105 116 121`",
+  "created_at": "2026-05-10T10:21:03.637347+00:00"
+}

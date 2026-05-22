@@ -1,0 +1,13 @@
+{
+  "event_id": "claude-1778411421-20",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /usr/bin/cat cat",
+  "path": "/usr/bin/cat",
+  "argv": [
+    "cat"
+  ],
+  "prompt_text": "[user] #0\n\nｈｅｌｌｏ 파일 만들어줘\n[assistant] #1\nthinking\nEtUEClkIDRgCKkAYDG8nhkfPCxMOZKUf+IYM6izX6LzH3VVFAg7WLKJwQn+cg7UuXs8i0qkldez73csa2LLp636CgPNXML/c8DNlMg9jbGF1ZGUtb3B1cy00LTc4ABIMQj14gaEwpoX+HlTNGgxc0YrEBms4CQqysZYiMNABcTcx99heaK8ia/mVwVF025BnnX64uz33EXGJbl6n2lZfSvm7BXxua4NLvfnmSCqpAzPlnDcgtpoGTP+P1wGiiDMJQKFqB+2lBM2vAyMKTnxCjCYKsEbW9FyAiUPhlfIsE3L9eZsr7DaK50g0eHg2Qn1KPyDG7fDdFQCJir2mTFm9BFPMAmMRgmZ8yjEPU636LdvOAer3gEJogczP5jMKuk9FAY8QBejLpCIzU/KmQW0srZOkVF12TmxHWKDGI67ZdpltBaiVq8l35jZ/qOgbTvGs56451uzNNVLF9gyBBykTYD4jOK+mwz+a2z/wSVtvqrbGjNZC6wJtsRFjT4A+DJ5UjJAT8VNFjOgo+GPrxL+KZFj2W3Lon6a764VvQ0RPV0yjSnAlXPPZp5SUJ6yahKg5E8hRLPHS5Yhcoso0Z3o39ieqPMrjralspqOdW3RkSLnrhLHvGScSUWtJOA4QOWntf1bJfCOm4k1ctSGRjQIJl7wqix7w86zJrB21p2OnMpzBARFW+jyPvZocJZYJEFpM8FXAIcou2WNblj/p+VEIuD0hBLllQWytbZ0UttwQjhTSSB8j2CjR6O+5Vcnp27bOWleZkHgjKtQ2BHeETD7s1k+qsrZwc2tmGAE=\ntool_use\ntoolu_01Vj92nku63FufNJ48nP8kMH\nWrite\nhello\n[user] #2\nEPERM: operation not permitted, mkdir '/tmp/workspace'",
+  "reasoning_text": "Bash: {\"command\": \"pwd && ls -la\", \"description\": \"Check current directory and contents\"}",
+  "created_at": "2026-05-10T11:22:56.936414+00:00"
+}

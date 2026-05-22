@@ -1,0 +1,17 @@
+{
+  "event_id": "claude-1778413589-1",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /usr/bin/git /usr/bin/git -c core.quotepath=false ls-files --recurse-submodules",
+  "path": "/usr/bin/git",
+  "argv": [
+    "/usr/bin/git",
+    "-c",
+    "core.quotepath=false",
+    "ls-files",
+    "--recurse-submodules"
+  ],
+  "prompt_text": "[user] #0\n\n구글 검색에서 “Linux syscall tracing” 키워드 검색 후 상위 결과 제목 5개를 syscall_search.md 파일로 저장해줘.",
+  "reasoning_text": "WebSearch: {\"query\": \"Linux syscall tracing\"}",
+  "created_at": "2026-05-10T11:47:23.395137+00:00"
+}

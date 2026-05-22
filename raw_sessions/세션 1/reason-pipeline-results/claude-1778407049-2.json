@@ -1,0 +1,30 @@
+{
+  "event_id": "claude-1778407049-2",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /tmp/agent/bin/2.1.138 rg --no-config --files --follow --hidden --glob !.git/ --glob !.svn/ --glob !.hg/ --glob !.bzr/ --glob !.jj/ --glob !.sl/ /tmp/workspace",
+  "path": "/tmp/agent/bin/2.1.138",
+  "argv": [
+    "rg",
+    "--no-config",
+    "--files",
+    "--follow",
+    "--hidden",
+    "--glob",
+    "!.git/",
+    "--glob",
+    "!.svn/",
+    "--glob",
+    "!.hg/",
+    "--glob",
+    "!.bzr/",
+    "--glob",
+    "!.jj/",
+    "--glob",
+    "!.sl/",
+    "/tmp/workspace"
+  ],
+  "prompt_text": "[user] #0\n\n현재 폴더에 report.txt 파일을 생성하고 “weekly report” 내용을 저장해줘.",
+  "reasoning_text": "Write: {\"file_path\": \"/tmp/workspace/report.txt\", \"content\": \"weekly report\"}",
+  "created_at": "2026-05-10T09:58:25.726606+00:00"
+}

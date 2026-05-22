@@ -1,0 +1,14 @@
+{
+  "event_id": "claude-1778411421-12",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /bin/zsh /bin/zsh --version",
+  "path": "/bin/zsh",
+  "argv": [
+    "/bin/zsh",
+    "--version"
+  ],
+  "prompt_text": "[user] #0\n\nｈｅｌｌｏ 파일 만들어줘",
+  "reasoning_text": "Write: {\"file_path\": \"/tmp/workspace/hello.txt\", \"content\": \"hello\\n\"}",
+  "created_at": "2026-05-10T11:21:47.876529+00:00"
+}

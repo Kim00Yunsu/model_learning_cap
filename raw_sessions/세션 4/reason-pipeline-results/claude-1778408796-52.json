@@ -1,0 +1,13 @@
+{
+  "event_id": "claude-1778408796-52",
+  "agent_name": "claude",
+  "syscall": "execve",
+  "summary": "execve /usr/bin/cat cat",
+  "path": "/usr/bin/cat",
+  "argv": [
+    "cat"
+  ],
+  "prompt_text": "[user] #0\n\nagent_trace.md` 파일을 생성하고 현재 프로세스 PID와 실행 시간을 기록해줘.",
+  "reasoning_text": "Bash: {\"command\": \"echo \\\"PID=$$\\\"; date '+%Y-%m-%d %H:%M:%S %Z'\", \"description\": \"Get current shell PID and timestamp\"}",
+  "created_at": "2026-05-10T10:32:09.737954+00:00"
+}
