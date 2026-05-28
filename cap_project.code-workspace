@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": "cap_project",
+			"path": "."
+		},
+		{
+			"path": "../ddd"
+		}
+	],
+	"settings": {}
+}

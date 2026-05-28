@@ -3,22 +3,33 @@
 from conversation_timeline_parser import build_intent_timeline
 from execve_analyzer import analyze_execve
 from guard_llm import guard_check
-from target_analyzer import policy_decision_for_action
 
 
 LOG_FOLDER = "./reason-pipeline-results"
 
 
 def label_to_decision(label):
+    """
+    Guard LLM의 label을 최종 결정으로 변환한다.
+
+    핵심 변경점:
+    - USER_CONFIRM은 Guard LLM이 ambiguous라고 판단했을 때만 나온다.
+    - Guard LLM이 normal이라고 판단하면 ALLOW가 나온다.
+    - 별도의 Policy Override로 normal을 USER_CONFIRM으로 바꾸지 않는다.
+    """
+
+    label = str(label).strip().lower()
+
     if label == "normal":
         return "ALLOW"
-
-    if label == "harmful":
-        return "BLOCK"
 
     if label == "ambiguous":
         return "USER_CONFIRM"
 
+    if label == "harmful":
+        return "BLOCK"
+
+    # 예상하지 못한 출력은 안전하게 사용자 확인으로 보낸다.
     return "USER_CONFIRM"
 
 
@@ -58,34 +69,6 @@ def split_actions(actions):
     return safe, review
 
 
-def apply_policy_override(
-    final_decision,
-    review_actions
-):
-    policy_results = []
-
-    for action in review_actions:
-        policy_result, policy_reason = policy_decision_for_action(action)
-
-        if policy_result != "allow":
-            policy_results.append({
-                "policy_result": policy_result,
-                "policy_reason": policy_reason,
-                "action": action
-            })
-
-    for result in policy_results:
-        if result["policy_result"] == "block":
-            return "BLOCK", result
-
-    for result in policy_results:
-        if result["policy_result"] == "confirm":
-            if final_decision == "ALLOW":
-                return "USER_CONFIRM", result
-
-    return final_decision, None
-
-
 def summarize_actions(actions):
     counter = {}
 
@@ -97,7 +80,6 @@ def summarize_actions(actions):
 
 
 # ==================================================
-# 새로 추가한 부분
 # 원본 syscall JSON 정보 출력용
 # ==================================================
 
@@ -132,6 +114,7 @@ def normalize_raw_summary(raw):
     'execve /usr/bin/git /usr/bin/git ...'
     형태라서 action summary와 비교하기 쉽게 정리한다.
     """
+
     if raw is None:
         return ""
 
@@ -205,6 +188,7 @@ def find_matching_syscall(action, syscalls):
 def attach_syscall_metadata(actions, syscalls):
     """
     action마다 원본 syscall 정보를 붙인다.
+
     출력하고 싶은 값:
     - agent_name
     - event_id
@@ -261,6 +245,22 @@ def print_action_detail(idx, action):
     print("rule result       :", action["rule_result"])
 
 
+def print_final_explanation(label, final_decision):
+    print("decision reason  :", end=" ")
+
+    if final_decision == "ALLOW":
+        print("Guard LLM classified the reviewed action as normal.")
+
+    elif final_decision == "USER_CONFIRM":
+        print("Guard LLM classified the reviewed action as ambiguous.")
+
+    elif final_decision == "BLOCK":
+        print("Guard LLM classified the reviewed action as harmful.")
+
+    else:
+        print(f"Unknown guard label was handled conservatively: {label}")
+
+
 def run():
     intents = build_intent_timeline(LOG_FOLDER)
 
@@ -275,10 +275,8 @@ def run():
         reasoning = intent["reasoning"]
         syscalls = intent["syscalls"]
 
-        # 기존 코드
         actions = analyze_execve(syscalls)
 
-        # 새로 추가한 코드
         # analyze_execve() 결과에 원본 syscall 정보를 다시 붙인다.
         actions = attach_syscall_metadata(actions, syscalls)
 
@@ -318,7 +316,6 @@ def run():
 
         if not actions:
             print("No meaningful action detected.")
-
         else:
             for idx, action in enumerate(actions, start=1):
                 print_action_detail(idx, action)
@@ -337,6 +334,7 @@ def run():
             print("\n--------------------------------------------------")
             print("[FINAL DECISION]")
             print("ALLOW")
+            print("decision reason  : Rule Base detected only low-risk actions.")
 
             continue
 
@@ -369,37 +367,25 @@ def run():
         reason = guard_result["reason"]
         raw_output = guard_result["raw_output"]
 
-        llm_decision = label_to_decision(label)
-
-        final_decision, policy_override = apply_policy_override(
-            llm_decision,
-            review_actions
-        )
+        final_decision = label_to_decision(label)
 
         print("label  :", label)
         print("reason :", reason)
         print("raw output :", raw_output)
 
-        if policy_override:
-            print("\n--------------------------------------------------")
-            print("[POLICY OVERRIDE]")
-            print("policy result :", policy_override["policy_result"])
-            print("reason        :", policy_override["policy_reason"])
-            print("action        :", policy_override["action"]["summary"])
-            print("target class  :", policy_override["action"]["target_class"])
-
         print("\n--------------------------------------------------")
         print("[FINAL DECISION]")
         print(final_decision)
+        print_final_explanation(label, final_decision)
 
         if final_decision == "BLOCK":
             print("\n[RE-REASON REQUEST]")
-            print("The previous action was blocked by policy.")
+            print("The previous action was blocked by Guard LLM.")
             print("Generate a safer action aligned with the user's request.")
 
         elif final_decision == "USER_CONFIRM":
             print("\n[USER CONFIRM REQUIRED]")
-            print("This action requires user confirmation.")
+            print("This action requires user confirmation because Guard LLM classified it as ambiguous.")
 
 
 if __name__ == "__main__":
