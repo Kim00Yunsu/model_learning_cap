@@ -10,27 +10,36 @@ LOG_FOLDER = "./reason-pipeline-results"
 
 def label_to_decision(label):
     """
-    Guard LLM의 label을 최종 결정으로 변환한다.
+    Guard LLM은 반드시 두 가지 label만 출력한다.
 
-    핵심 변경점:
-    - USER_CONFIRM은 Guard LLM이 ambiguous라고 판단했을 때만 나온다.
-    - Guard LLM이 normal이라고 판단하면 ALLOW가 나온다.
-    - 별도의 Policy Override로 normal을 USER_CONFIRM으로 바꾸지 않는다.
+    normal  -> ALLOW
+    harmful -> USER_CONFIRM
+
+    여기서 harmful은 즉시 차단이 아니라,
+    사용자 확인이 필요한 위험 가능 행동을 의미한다.
     """
 
-    label = str(label).strip().lower()
+    label = str(label).lower().strip()
 
     if label == "normal":
         return "ALLOW"
 
-    if label == "ambiguous":
+    if label == "harmful":
         return "USER_CONFIRM"
 
-    if label == "harmful":
-        return "BLOCK"
-
-    # 예상하지 못한 출력은 안전하게 사용자 확인으로 보낸다.
     return "USER_CONFIRM"
+
+
+def decision_reason_from_label(label):
+    label = str(label).lower().strip()
+
+    if label == "normal":
+        return "Guard LLM classified the reviewed action as normal."
+
+    if label == "harmful":
+        return "Guard LLM classified the reviewed action as harmful."
+
+    return "Guard LLM returned an unknown label, so user confirmation is required."
 
 
 def print_reasoning(reasoning):
@@ -79,10 +88,6 @@ def summarize_actions(actions):
     return counter
 
 
-# ==================================================
-# 원본 syscall JSON 정보 출력용
-# ==================================================
-
 def argv_to_text(argv):
     if isinstance(argv, list):
         return " ".join(str(x) for x in argv)
@@ -109,12 +114,6 @@ def get_agent_name_from_syscalls(syscalls):
 
 
 def normalize_raw_summary(raw):
-    """
-    reason-pipeline-results 안의 raw summary는 보통
-    'execve /usr/bin/git /usr/bin/git ...'
-    형태라서 action summary와 비교하기 쉽게 정리한다.
-    """
-
     if raw is None:
         return ""
 
@@ -127,22 +126,11 @@ def normalize_raw_summary(raw):
 
 
 def find_matching_syscall(action, syscalls):
-    """
-    analyze_execve()가 만든 action과
-    원본 reason-pipeline-results의 syscall JSON을 연결한다.
-
-    완벽히 1:1로 안 맞을 수도 있어서 아래 순서로 찾는다.
-    1. action summary가 raw summary에 포함되는지 확인
-    2. raw summary가 action summary에 포함되는지 확인
-    3. argv 문자열이 action summary와 겹치는지 확인
-    """
-
     action_summary = str(action.get("summary", "")).strip()
 
     if not action_summary:
         return None
 
-    # 1차: summary 기반 매칭
     for syscall in syscalls:
         raw_summary = normalize_raw_summary(syscall.get("summary", ""))
 
@@ -155,7 +143,6 @@ def find_matching_syscall(action, syscalls):
         if raw_summary in action_summary:
             return syscall
 
-    # 2차: argv 기반 매칭
     for syscall in syscalls:
         argv_text = argv_to_text(syscall.get("argv", []))
 
@@ -168,7 +155,6 @@ def find_matching_syscall(action, syscalls):
         if argv_text in action_summary:
             return syscall
 
-    # 3차: 명령어 이름 기반 약한 매칭
     for syscall in syscalls:
         path = syscall.get("path", "")
         argv_text = argv_to_text(syscall.get("argv", []))
@@ -186,23 +172,10 @@ def find_matching_syscall(action, syscalls):
 
 
 def attach_syscall_metadata(actions, syscalls):
-    """
-    action마다 원본 syscall 정보를 붙인다.
-
-    출력하고 싶은 값:
-    - agent_name
-    - event_id
-    - syscall
-    - path
-    - argv
-    - raw_summary
-    """
-
     enriched_actions = []
 
     for action in actions:
         matched = find_matching_syscall(action, syscalls)
-
         new_action = dict(action)
 
         if matched:
@@ -245,22 +218,6 @@ def print_action_detail(idx, action):
     print("rule result       :", action["rule_result"])
 
 
-def print_final_explanation(label, final_decision):
-    print("decision reason  :", end=" ")
-
-    if final_decision == "ALLOW":
-        print("Guard LLM classified the reviewed action as normal.")
-
-    elif final_decision == "USER_CONFIRM":
-        print("Guard LLM classified the reviewed action as ambiguous.")
-
-    elif final_decision == "BLOCK":
-        print("Guard LLM classified the reviewed action as harmful.")
-
-    else:
-        print(f"Unknown guard label was handled conservatively: {label}")
-
-
 def run():
     intents = build_intent_timeline(LOG_FOLDER)
 
@@ -276,10 +233,7 @@ def run():
         syscalls = intent["syscalls"]
 
         actions = analyze_execve(syscalls)
-
-        # analyze_execve() 결과에 원본 syscall 정보를 다시 붙인다.
         actions = attach_syscall_metadata(actions, syscalls)
-
         safe_actions, review_actions = split_actions(actions)
 
         print("\n\n==================================================")
@@ -335,7 +289,6 @@ def run():
             print("[FINAL DECISION]")
             print("ALLOW")
             print("decision reason  : Rule Base detected only low-risk actions.")
-
             continue
 
         print("REVIEW_REQUIRED")
@@ -356,10 +309,7 @@ def run():
             user_prompt=user_prompt,
             follow_up_inputs=follow_up_inputs,
             reasoning="\n".join(reasoning),
-            syscall_summary=[
-                x["summary"]
-                for x in review_actions
-            ],
+            syscall_summary=[x["summary"] for x in review_actions],
             execve_analysis=review_actions
         )
 
@@ -368,6 +318,7 @@ def run():
         raw_output = guard_result["raw_output"]
 
         final_decision = label_to_decision(label)
+        decision_reason = decision_reason_from_label(label)
 
         print("label  :", label)
         print("reason :", reason)
@@ -376,16 +327,11 @@ def run():
         print("\n--------------------------------------------------")
         print("[FINAL DECISION]")
         print(final_decision)
-        print_final_explanation(label, final_decision)
+        print("decision reason  :", decision_reason)
 
-        if final_decision == "BLOCK":
-            print("\n[RE-REASON REQUEST]")
-            print("The previous action was blocked by Guard LLM.")
-            print("Generate a safer action aligned with the user's request.")
-
-        elif final_decision == "USER_CONFIRM":
+        if final_decision == "USER_CONFIRM":
             print("\n[USER CONFIRM REQUIRED]")
-            print("This action requires user confirmation because Guard LLM classified it as ambiguous.")
+            print("This action requires user confirmation because Guard LLM classified it as harmful.")
 
 
 if __name__ == "__main__":
